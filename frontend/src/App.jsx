@@ -7,6 +7,8 @@ import UserProfile from "./pages/UserProfile";
 import SellerDashboard from "./pages/SellerDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import LoginPage from "./pages/Login";
+import BusinessSetting from "./pages/BusinessSetting";
+import BusinessAnalytics from "./pages/BusinessAnalytics";
 
 function ProtectedLayout({ children, allowedRoles }) {
   const { user } = useContext(AuthContext);
@@ -50,6 +52,14 @@ export default function App() {
         {/* Dashboard 4: Isolated Admin System */}
         <Route path="/admin" element={
           <ProtectedLayout allowedRoles={['admin']}><AdminDashboard /></ProtectedLayout>
+        } />
+
+        <Route path="/business-setting" element={
+          <ProtectedLayout allowedRoles={['seller']}><BusinessSetting /></ProtectedLayout>
+        } />
+
+        <Route path="/business-analytics" element={
+          <ProtectedLayout allowedRoles={['seller']}><BusinessAnalytics /></ProtectedLayout>
         } />
 
         {/* Fallback Route */}

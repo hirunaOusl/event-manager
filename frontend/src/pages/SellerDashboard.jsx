@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import CuratedPackages from "./CuratedPackages";
 import EditorialUpdates from "./EditorialUpdates";
+import BusinessSetting from "./BusinessSetting";
+import SellerSidebar from "../components/SellerSidebar";
 
 const ShareIcon = () => (
   <svg width="15" height="17" viewBox="0 0 15 17" fill="none">
@@ -167,6 +169,7 @@ function CoverSection() {
 function ProfileHeader() {
   const { user } = useContext(AuthContext);
   const businessName = user?.businessDetails?.businessName || user?.username || "Artisan Gala Events";
+  const navigate = useNavigate();
   return (
     <div className="max-w-[1280px] mx-auto px-8 lg:px-16">
       <div className="flex justify-center -mt-[72px] mb-4">
@@ -209,8 +212,8 @@ function ProfileHeader() {
             <ShareIcon />
             Share
           </button>
-          <button className="px-7 py-2.5 rounded-lg bg-[#FFB800] text-[#6B4C00] font-hanken text-sm font-bold shadow-md hover:bg-[#F0AC00] transition-colors">
-            Edit Profile
+          <button onClick={() => navigate('/business-setting')} className="px-7 py-2.5 rounded-lg bg-[#FFB800] text-[#6B4C00] font-hanken text-sm font-bold shadow-md hover:bg-[#F0AC00] transition-colors">
+            Edit Business Profile
           </button>
         </div>
       </div>
@@ -275,19 +278,26 @@ function Footer() {
   );
 }
 
+
+
 export default function SellerDashboard() {
   const navigate = useNavigate();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   return (
     <>
       <div className="pt-20">
-        <div className="min-h-screen bg-[#FBF9F8]">
+        <div className="min-h-screen bg-[#FBF9F8] relative">
           <Navbar />
-          <CoverSection />
-          <ProfileHeader />
-          <CuratedPackages />
-          <EditorialUpdates />
-          <Footer />
+          <SellerSidebar isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
+          
+          <div className={`transition-all duration-300 ${isSidebarOpen ? 'pl-64' : 'pl-16'}`}>
+            <CoverSection />
+            <ProfileHeader />
+            <CuratedPackages />
+            <EditorialUpdates />
+            <Footer />
+          </div>
         </div>
       </div>
     </>

@@ -21,7 +21,11 @@ export default function SellerSidebar({ isSidebarOpen, setIsSidebarOpen }) {
       logout();
       navigate('/login');
     } else if (item.path) {
-      navigate(item.path);
+      if (item.name === 'Customer View') {
+        navigate(`/seller-profile?sellerId=${user?._id || user?.id}`);
+      } else {
+        navigate(item.path);
+      }
     }
   };
 

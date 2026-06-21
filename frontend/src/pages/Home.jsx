@@ -1,4 +1,5 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 
 // ── Icons ──────────────────────────────────────────────────────────────
@@ -299,7 +300,7 @@ function FilterBar({ active, setActive, search, setSearch }) {
 }
 
 // ── Masonry Grid ───────────────────────────────────────────────────────
-function MasonryGrid({ posts }) {
+function MasonryGrid({ posts, navigate }) {
     if (posts.length === 0) {
         return (
             <div className="max-w-[1280px] mx-auto px-8 lg:px-16 py-16 text-center">
@@ -317,26 +318,55 @@ function MasonryGrid({ posts }) {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {cols.map((col, ci) => (
                     <div key={ci} className="flex flex-col gap-4">
-                        {col.map((post) => (
-                            <div
-                                key={post.id}
-                                className={`relative rounded-xl overflow-hidden cursor-pointer group shadow-sm ${post.height}`}
-                            >
-                                <img
-                                    src={post.image}
-                                    alt={`Event ${post.id}`}
-                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                                />
-                                {/* Hover overlay */}
-                                <div className="absolute inset-0 bg-gradient-to-t from-[rgba(0,0,0,0.50)] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                                {/* Category badge on hover */}
-                                <div className="absolute bottom-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                    <span className="font-hanken text-[10px] font-bold text-white tracking-[0.1em] uppercase bg-[rgba(124,88,0,0.85)] px-2.5 py-1 rounded-full">
-                                        {post.category}
-                                    </span>
+                        {col.map((post) => {
+                            const postId = post._id || post.id;
+                            const postImage = post.image?.url || post.image;
+                            const postHeight = post.height || (post.size === "tall" ? "h-[380px]" : "h-[260px]");
+                            const postCategory = post.category || "party";
+                            const sellerId = post.seller?._id || post.seller;
+
+                            return (
+                                <div
+                                    key={postId}
+                                    className={`relative rounded-xl overflow-hidden cursor-pointer group shadow-sm ${postHeight}`}
+                                >
+                                    <img
+                                        src={postImage}
+                                        alt={post.title || `Event ${postId}`}
+                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                    />
+                                    {/* Hover overlay */}
+                                    <div className="absolute inset-0 bg-gradient-to-t from-[rgba(0,0,0,0.60)] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                                    
+                                    {/* Category badge on hover */}
+                                    <div className="absolute bottom-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
+                                        <span className="font-hanken text-[10px] font-bold text-white tracking-[0.1em] uppercase bg-[rgba(124,88,0,0.85)] px-2.5 py-1 rounded-full">
+                                            {postCategory}
+                                        </span>
+                                    </div>
+
+                                    {/* Seller profile link button on hover */}
+                                    {sellerId && (
+                                        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    navigate(`/seller-profile?sellerId=${sellerId}`);
+                                                }}
+                                                className="font-hanken text-xs font-bold text-[#7C5800] uppercase bg-white hover:bg-[#F2EFE9] px-4 py-2.5 rounded-full shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-all duration-300"
+                                            >
+                                                View Seller Profile
+                                            </button>
+                                            {post.seller?.businessDetails?.businessName && (
+                                                <span className="text-white font-hanken text-xs font-semibold drop-shadow-md">
+                                                    by {post.seller.businessDetails.businessName}
+                                                </span>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 ))}
             </div>
@@ -382,13 +412,31 @@ function Footer() {
 
 
 export default function Home() {
-
+    const [posts, setPosts] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [activeCategory, setActiveCategory] = useState("All");
     const [search, setSearch] = useState("");
+    const navigate = useNavigate();
 
-    const filtered = allPosts.filter((post) => {
+    useEffect(() => {
+        setLoading(true);
+        fetch("http://localhost:5000/api/posts")
+            .then((res) => res.json())
+            .then((data) => {
+                setPosts(data.data || []);
+                setLoading(false);
+            })
+            .catch((err) => {
+                console.error("Error fetching posts:", err);
+                setLoading(false);
+            });
+    }, []);
+
+    const filtered = posts.filter((post) => {
         const matchCat = activeCategory === "All" || post.category === activeCategory;
-        const matchSearch = post.category.toLowerCase().includes(search.toLowerCase());
+        const matchSearch =
+            (post.title || "").toLowerCase().includes(search.toLowerCase()) ||
+            (post.category || "").toLowerCase().includes(search.toLowerCase());
         return matchCat && matchSearch;
     });
 
@@ -403,11 +451,15 @@ export default function Home() {
                     search={search}
                     setSearch={setSearch}
                 />
-                <MasonryGrid posts={filtered} />
+                {loading ? (
+                    <div className="flex items-center justify-center min-h-[300px]">
+                        <p className="font-hanken text-[#5F5E5E] text-base animate-pulse">Loading events...</p>
+                    </div>
+                ) : (
+                    <MasonryGrid posts={filtered} navigate={navigate} />
+                )}
                 <Footer />
             </div>
-
-
         </div>
     );
 }

@@ -10,7 +10,7 @@ const editorialPostSchema = new Schema(
   {
     seller: {
       type: Schema.Types.ObjectId,
-      ref: "Seller",
+      ref: "User",
       required: [true, "Post must belong to a seller"],
       index: true,
     },
@@ -52,6 +52,13 @@ const editorialPostSchema = new Schema(
       type: String,
       enum: ["normal", "tall"],
       default: "normal",
+    },
+
+    category: {
+      type: String,
+      enum: ["wedding", "party", "official", "functions"],
+      default: "party",
+      index: true,
     },
 
     tags: {

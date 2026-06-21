@@ -120,3 +120,81 @@ exports.getProfile = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
+// 5. GET USER BY ID (Public Profile)
+exports.getUserById = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id).select('-password');
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+// 6. UPDATE PROFILE (Self)
+exports.updateProfile = async (req, res) => {
+  try {
+    const { username, email, businessDetails, currentPassword, newPassword } = req.body;
+    
+    if (req.user.role === 'admin') {
+      return res.status(400).json({ message: 'Admin profile cannot be modified via this endpoint' });
+    }
+
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Update email (checking for uniqueness if changed)
+    if (email && email !== user.email) {
+      const emailExists = await User.findOne({ email });
+      if (emailExists || email === process.env.ADMIN_EMAIL) {
+        return res.status(400).json({ message: 'Email already registered' });
+      }
+      user.email = email;
+    }
+
+    // Update username
+    if (username) user.username = username;
+
+    // Update business details
+    if (businessDetails) {
+      user.businessDetails = {
+        businessName: businessDetails.businessName !== undefined ? businessDetails.businessName : user.businessDetails?.businessName,
+        businessAddress: businessDetails.businessAddress !== undefined ? businessDetails.businessAddress : user.businessDetails?.businessAddress,
+        phone: businessDetails.phone !== undefined ? businessDetails.phone : user.businessDetails?.phone
+      };
+    }
+
+    // Handle password change if requested
+    if (newPassword) {
+      if (!currentPassword) {
+        return res.status(400).json({ message: 'Current password is required to set a new password' });
+      }
+      const isMatch = await bcrypt.compare(currentPassword, user.password);
+      if (!isMatch) {
+        return res.status(400).json({ message: 'Incorrect current password' });
+      }
+      const salt = await bcrypt.genSalt(10);
+      user.password = await bcrypt.hash(newPassword, salt);
+    }
+
+    await user.save();
+
+    res.json({
+      message: 'Profile updated successfully!',
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+        businessDetails: user.businessDetails
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};

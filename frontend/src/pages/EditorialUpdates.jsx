@@ -102,6 +102,7 @@ function PostModal({ initialPost, onClose, onSaved }) {
   const [title, setTitle] = useState(initialPost?.title || "");
   const [caption, setCaption] = useState(initialPost?.caption || "");
   const [size, setSize] = useState(initialPost?.size || "normal");
+  const [category, setCategory] = useState(initialPost?.category || "party");
   const [imageMode, setImageMode] = useState("upload"); // "upload" | "url"
   const [imageUrl, setImageUrl] = useState(initialPost?.image?.source === "url" ? initialPost.image.url : "");
   const [file, setFile] = useState(null);
@@ -144,17 +145,19 @@ function PostModal({ initialPost, onClose, onSaved }) {
           form.append("title", title);
           form.append("caption", caption);
           form.append("size", size);
+          form.append("category", category);
           saved = await apiRequest(`/posts/${initialPost._id}`, { method: "PUT", body: form, isForm: true });
         } else if (imageMode === "url" && imageUrl.trim() && imageUrl !== initialPost?.image?.url) {
-          saved = await PostsAPI.update(initialPost._id, { title, caption, size, imageUrl: imageUrl.trim() });
+          saved = await PostsAPI.update(initialPost._id, { title, caption, size, category, imageUrl: imageUrl.trim() });
         } else {
-          saved = await PostsAPI.update(initialPost._id, { title, caption, size });
+          saved = await PostsAPI.update(initialPost._id, { title, caption, size, category });
         }
       } else if (imageMode === "upload") {
         saved = await PostsAPI.createFromFile(file, {
           title,
           caption,
           size,
+          category,
           status: "published",
           seller: sellerId,
         });
@@ -163,6 +166,7 @@ function PostModal({ initialPost, onClose, onSaved }) {
           title,
           caption,
           size,
+          category,
           status: "published",
           imageUrl: imageUrl.trim(),
         });
@@ -320,6 +324,21 @@ function PostModal({ initialPost, onClose, onSaved }) {
                 </button>
               ))}
             </div>
+          </div>
+
+          {/* Category */}
+          <div>
+            <label className="block font-hanken text-sm font-medium text-[#1B1C1C] mb-2">Category</label>
+            <select
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="w-full px-4 py-2.5 rounded-lg border border-[rgba(213,196,171,0.50)] bg-[#FBF9F8] font-hanken text-sm text-[#1B1C1C] outline-none focus:border-[#7C5800] transition-colors"
+            >
+              <option value="wedding">Wedding</option>
+              <option value="party">Party</option>
+              <option value="official">Official</option>
+              <option value="functions">Functions</option>
+            </select>
           </div>
 
           {error && (

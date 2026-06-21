@@ -60,7 +60,7 @@ const createPost = asyncHandler(async (req, res) => {
     });
   }
 
-  const { title, caption, size, tags, status } = req.body;
+  const { title, caption, size, tags, status, category } = req.body;
 
   const post = await EditorialPost.create({
     seller: req.seller._id,
@@ -68,6 +68,7 @@ const createPost = asyncHandler(async (req, res) => {
     caption,
     size,
     status,
+    category,
     tags: tags
       ? Array.isArray(tags)
         ? tags
@@ -117,7 +118,7 @@ const getPosts = asyncHandler(async (req, res) => {
   const sort = sortMap[req.query.sort] || sortMap.newest;
 
   const [posts, total] = await Promise.all([
-    EditorialPost.find(filter).sort(sort).skip(skip).limit(limit),
+    EditorialPost.find(filter).populate("seller", "username email businessDetails").sort(sort).skip(skip).limit(limit),
     EditorialPost.countDocuments(filter),
   ]);
 
@@ -157,12 +158,13 @@ const getPost = asyncHandler(async (req, res) => {
 const updatePost = asyncHandler(async (req, res) => {
   const post = req.post;
 
-  const { title, caption, size, tags, status, removeImage } = req.body;
+  const { title, caption, size, tags, status, category, removeImage } = req.body;
 
   if (title !== undefined) post.title = title;
   if (caption !== undefined) post.caption = caption;
   if (size !== undefined) post.size = size;
   if (status !== undefined) post.status = status;
+  if (category !== undefined) post.category = category;
   if (tags !== undefined) {
     post.tags = Array.isArray(tags) ? tags : String(tags).split(",");
   }

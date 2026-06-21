@@ -62,8 +62,12 @@ const fetchProfile = async (currentToken) => {
     setUser(updatedUser);
   };
 
+  const updateUser = (updatedUser) => {
+    setUser(updatedUser);
+  };
+
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, logout, updateRoleToSeller }}>
+    <AuthContext.Provider value={{ user, token, loading, login, logout, updateRoleToSeller, updateUser }}>
       {!loading && children}
     </AuthContext.Provider>
   );

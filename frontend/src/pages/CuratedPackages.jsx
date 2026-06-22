@@ -40,7 +40,8 @@ const XIcon = () => (
 );
 
 const CATEGORIES = ["LIFESTYLE", "CULINARY", "CORPORATE", "WEDDING", "PARTY", "OFFICIAL", "FUNCTIONS"];
-const EMPTY_FORM = { category: "LIFESTYLE", title: "", description: "", badge: "", imageUrl: "" };
+const EMPTY_FORM = { category: "LIFESTYLE", title: "", description: "", badge: "", imageUrl: "", price: 0 };
+
 
 // ── Package Card ───────────────────────────────────────────────────────
 function PackageCard({ pkg, onEdit, onDelete }) {
@@ -78,6 +79,9 @@ function PackageCard({ pkg, onEdit, onDelete }) {
         <h3 className="font-playfair text-lg text-[#1B1C1C] leading-7">{pkg.title}</h3>
         <p className="font-hanken text-sm text-[#5F5E5E] font-semibold leading-[1.5] tracking-wide line-clamp-2">
           {pkg.description}
+        </p>
+        <p className="font-hanken text-lg text-[#1B1C1C] font-semibold leading-[1.5] tracking-wide line-clamp-2">
+          Rs.{pkg.price}
         </p>
       </div>
     </div>
@@ -118,6 +122,7 @@ function PackageModal({ initial, onClose, onSaved }) {
         description: form.description,
         badge: form.badge || "",
         imageUrl: imageFile ? "" : form.imageUrl || form.image || "",
+        price: form.price,
       };
 
       if (isEdit) {
@@ -220,6 +225,19 @@ function PackageModal({ initial, onClose, onSaved }) {
               rows={3}
               placeholder="Describe the experience..."
               className="px-4 py-3 rounded-lg border border-[rgba(213,196,171,0.50)] bg-[#F5F3F3] font-hanken text-sm text-[#1B1C1C] outline-none focus:ring-2 focus:ring-[rgba(213,196,171,0.60)] resize-none"
+            />
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label className="font-hanken text-xs text-[#5F5E5E] tracking-wide">Price *</label>
+            <input
+              type="number"
+              name="price"
+              required
+              value={form.price}
+              onChange={handleChange}
+              placeholder="e.g. 50000"
+              className="h-10 px-4 rounded-lg border border-[rgba(213,196,171,0.50)] bg-[#F5F3F3] font-hanken text-sm text-[#1B1C1C] outline-none focus:ring-2 focus:ring-[rgba(213,196,171,0.60)]"
             />
           </div>
 

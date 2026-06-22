@@ -12,12 +12,14 @@ export default function BusinessSetting() {
         businessName: user?.businessDetails?.businessName || '',
         businessAddress: user?.businessDetails?.businessAddress || '',
         phone: user?.businessDetails?.phone || '',
-        category: user?.businessDetails?.category || '',
+        subCategory: user?.businessDetails?.subCategory || '',
         description: user?.businessDetails?.description || '',
         city: user?.businessDetails?.city || '',
         taxNumber: user?.businessDetails?.taxNumber || '',
         nicNumber: user?.businessDetails?.nicNumber || '',
-        whatsappNumber: user?.businessDetails?.whatsappNumber || ''
+        whatsappNumber: user?.businessDetails?.whatsappNumber || '',
+        budgetPrice: user?.businessDetails?.budgetPrice || '',
+        rating: user?.businessDetails?.rating || ''
     });
     const [newTaxFile, setNewTaxFile] = useState(null);
 
@@ -99,8 +101,8 @@ export default function BusinessSetting() {
                                                 <div>
                                                     <label className="text-xs font-bold text-[#434651] mb-1.5 block">Business Category</label>
                                                     <select
-                                                        value={formData.category}
-                                                        onChange={e => setFormData({ ...formData, category: e.target.value })}
+                                                        value={formData.subCategory}
+                                                        onChange={e => setFormData({ ...formData, subCategory: e.target.value })}
                                                         className="w-full bg-[#F8F9FB] border border-[#E5E7EB] rounded-lg p-2.5 text-sm text-[#191C1E] outline-none focus:bg-white focus:ring-1 focus:ring-[#002155] transition-colors"
                                                     >
                                                         <option value="">Select Category</option>
@@ -190,6 +192,18 @@ export default function BusinessSetting() {
                                                     />
                                                 </div>
                                             </div>
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div>
+                                                    <label className="text-xs font-bold text-[#434651] mb-1.5 block">Rating (out of 5)</label>
+                                                    <input
+                                                        type="text"
+                                                        value={formData.rating}
+                                                        onChange={e => setFormData({ ...formData, rating: e.target.value })}
+                                                        className="w-full bg-[#F8F9FB] border border-[#E5E7EB] rounded-lg p-2.5 text-sm text-[#191C1E] outline-none focus:bg-white focus:ring-1 focus:ring-[#002155] transition-colors"
+                                                        placeholder="e.g. 4.8"
+                                                    />
+                                                </div>
+                                            </div>
 
                                             <div>
                                                 <label className="text-xs font-bold text-[#434651] mb-1.5 block">Business Tax File</label>
@@ -197,9 +211,9 @@ export default function BusinessSetting() {
                                                     <div className="mb-3">
                                                         <p className="text-xs text-gray-500 mb-1">Current Tax File:</p>
                                                         <div className="w-40 h-28 border border-gray-200 rounded-lg overflow-hidden bg-gray-50">
-                                                            <img 
-                                                                src={user.businessDetails.taxFile} 
-                                                                alt="Business Tax File" 
+                                                            <img
+                                                                src={user.businessDetails.taxFile}
+                                                                alt="Business Tax File"
                                                                 className="w-full h-full object-cover"
                                                                 onError={(e) => { e.target.src = 'https://placehold.co/160x110?text=Tax+File+Image'; }}
                                                             />

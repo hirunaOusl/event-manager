@@ -65,7 +65,7 @@ exports.login = async (req, res) => {
 
     res.status(200).json({
       token: generateToken(user._id, user.role),
-      user: { id: user._id, username: user.username, email: user.email, role: user.role }
+      user: { id: user._id, username: user.username, email: user.email, role: user.role, businessDetails: user.businessDetails }
     });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
@@ -75,16 +75,18 @@ exports.login = async (req, res) => {
 // 3. UPGRADE TO SELLER (One-time business registration)
 exports.registerSeller = async (req, res) => {
   try {
-    const { 
-      businessName, 
-      businessAddress, 
-      phone, 
-      category, 
-      description, 
-      city, 
-      taxNumber, 
-      nicNumber, 
-      whatsappNumber 
+    const {
+      businessName,
+      businessAddress,
+      phone,
+      subCategory,
+      description,
+      city,
+      taxNumber,
+      nicNumber,
+      whatsappNumber,
+      budgetPrice,
+      rating,
     } = req.body;
 
     const user = await User.findById(req.user.id);
@@ -103,13 +105,15 @@ exports.registerSeller = async (req, res) => {
       businessName,
       businessAddress,
       phone,
-      category,
+      subCategory,
       description,
       city,
       taxFile,
       taxNumber,
       nicNumber,
-      whatsappNumber
+      whatsappNumber,
+      budgetPrice,
+      rating,
     };
     await user.save();
 
@@ -161,7 +165,7 @@ exports.getUserById = async (req, res) => {
 exports.updateProfile = async (req, res) => {
   try {
     const { username, email, businessDetails, currentPassword, newPassword } = req.body;
-    
+
     if (req.user.role === 'admin') {
       return res.status(400).json({ message: 'Admin profile cannot be modified via this endpoint' });
     }
@@ -184,10 +188,15 @@ exports.updateProfile = async (req, res) => {
     if (username) user.username = username;
 
     // Update business details
-    const hasBusinessUpdate = req.body.businessDetails || req.body.businessName || req.body.businessAddress || req.body.phone || req.body.category || req.body.description || req.body.city || req.body.taxNumber || req.body.nicNumber || req.body.whatsappNumber || req.file || req.files;
+    const hasBusinessUpdate = req.body.businessDetails ||
+      req.body.businessName || req.body.businessAddress ||
+      req.body.phone || req.body.subCategory || req.body.description ||
+      req.body.city || req.body.taxNumber || req.body.nicNumber ||
+      req.body.whatsappNumber || req.file || req.files ||
+      req.body.rating;
 
     if (hasBusinessUpdate && user.role === 'seller') {
-      const details = req.body.businessDetails 
+      const details = req.body.businessDetails
         ? (typeof req.body.businessDetails === 'string' ? JSON.parse(req.body.businessDetails) : req.body.businessDetails)
         : req.body;
 
@@ -213,7 +222,7 @@ exports.updateProfile = async (req, res) => {
         businessName: details.businessName !== undefined ? details.businessName : user.businessDetails?.businessName,
         businessAddress: details.businessAddress !== undefined ? details.businessAddress : user.businessDetails?.businessAddress,
         phone: details.phone !== undefined ? details.phone : user.businessDetails?.phone,
-        category: details.category !== undefined ? details.category : user.businessDetails?.category,
+        subCategory: details.subCategory !== undefined ? details.subCategory : user.businessDetails?.subCategory,
         description: details.description !== undefined ? details.description : user.businessDetails?.description,
         city: details.city !== undefined ? details.city : user.businessDetails?.city,
         taxNumber: details.taxNumber !== undefined ? details.taxNumber : user.businessDetails?.taxNumber,
@@ -221,7 +230,8 @@ exports.updateProfile = async (req, res) => {
         whatsappNumber: details.whatsappNumber !== undefined ? details.whatsappNumber : user.businessDetails?.whatsappNumber,
         taxFile: taxFileUrl,
         profileImage: profileImageUrl,
-        coverImage: coverImageUrl
+        coverImage: coverImageUrl,
+        rating: details.rating !== undefined ? details.rating : user.businessDetails?.rating,
       };
     }
 
@@ -263,4 +273,4 @@ exports.getSellers = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
-};
+};

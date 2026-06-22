@@ -9,7 +9,7 @@ export default function UserProfile() {
     businessName: '',
     businessAddress: '',
     phone: '',
-    category: '',
+    subCategory: '',
     description: '',
     city: '',
     taxNumber: '',
@@ -526,7 +526,7 @@ export default function UserProfile() {
                               <select 
                                 required 
                                 className="w-full bg-[#F8F9FB] border border-[#E5E7EB] rounded-lg p-2.5 text-sm text-[#191C1E] outline-none focus:bg-white focus:ring-1 focus:ring-[#002155] transition-colors" 
-                                onChange={e => setBusinessData({ ...businessData, category: e.target.value })}
+                                onChange={e => setBusinessData({ ...businessData, subCategory: e.target.value })}
                               >
                                 <option value="">Select Category</option>
                                 <option value="Decoration">Decoration</option>

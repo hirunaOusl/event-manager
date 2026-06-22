@@ -1,5 +1,6 @@
 // controllers/packageController.js
 const EventPackage = require("../models/EventPackage");
+const BudgetPlan = require("../models/BudgetPlan");
 const fs = require("fs");
 const path = require("path");
 
@@ -59,7 +60,7 @@ const getPackageById = async (req, res, next) => {
 // ─────────────────────────────────────────────────────────────────────
 const createPackage = async (req, res, next) => {
     try {
-        const { category, title, description, badge, isActive, order } = req.body;
+        const { category, title, description, badge, isActive, order, price } = req.body;
 
         // If image file uploaded, use its path; else use imageUrl from body
         let image = req.body.imageUrl || "";
@@ -74,8 +75,21 @@ const createPackage = async (req, res, next) => {
             image,
             badge: badge || null,
             isActive: isActive !== undefined ? isActive : true,
+            price,
             order: order || 0,
             seller: req.seller._id,
+        });
+
+        // Sync created package to BudgetPlan flat table
+        await BudgetPlan.create({
+            package: pkg._id,
+            seller: req.seller._id,
+            businessName: req.seller.businessDetails?.businessName || "Unknown Business",
+            subCategory: req.seller.businessDetails?.subCategory || "Other",
+            category: pkg.category,
+            price: pkg.price,
+            city: req.seller.businessDetails?.city || "Unknown City",
+            rating: req.seller.businessDetails?.rating || "0.0",
         });
 
         res.status(201).json({ success: true, message: "Package created", data: pkg });
@@ -110,7 +124,7 @@ const updatePackage = async (req, res, next) => {
             pkg.seller = req.seller._id;
         }
 
-        const { category, title, description, badge, isActive, order } = req.body;
+        const { category, title, description, badge, isActive, order, price } = req.body;
 
         // Handle new image upload
         if (req.file) {
@@ -130,9 +144,24 @@ const updatePackage = async (req, res, next) => {
         if (description !== undefined) pkg.description = description;
         if (badge !== undefined) pkg.badge = badge || null;
         if (isActive !== undefined) pkg.isActive = isActive;
+        if (price !== undefined) pkg.price = price;
         if (order !== undefined) pkg.order = order;
 
         const updated = await pkg.save();
+
+        // Sync updates to corresponding BudgetPlan record
+        await BudgetPlan.findOneAndUpdate(
+            { package: pkg._id },
+            {
+                category: pkg.category,
+                price: pkg.price,
+                businessName: req.seller.businessDetails?.businessName || "Unknown Business",
+                subCategory: req.seller.businessDetails?.subCategory || "Other",
+                city: req.seller.businessDetails?.city || "Unknown City",
+                rating: req.seller.businessDetails?.rating || "0.0",
+            },
+            { upsert: true, new: true }
+        );
 
         res.status(200).json({ success: true, message: "Package updated", data: updated });
     } catch (error) {
@@ -166,6 +195,9 @@ const deletePackage = async (req, res, next) => {
 
         await pkg.deleteOne();
 
+        // Delete from BudgetPlan searchable table
+        await BudgetPlan.deleteOne({ package: pkg._id });
+
         res.status(200).json({ success: true, message: "Package deleted", data: {} });
     } catch (error) {
         next(error);
@@ -180,6 +212,7 @@ const deletePackage = async (req, res, next) => {
 const seedPackages = async (req, res, next) => {
     try {
         await EventPackage.deleteMany({});
+        await BudgetPlan.deleteMany({});
 
         const samples = [
             {
@@ -188,6 +221,7 @@ const seedPackages = async (req, res, next) => {
                 description: "Exclusive rooftop gathering with bespoke cocktails and live jazz ensemble.",
                 image: "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=600&q=80",
                 badge: "PREMIUM",
+                price: 10000,
                 order: 1,
             },
             {
@@ -195,6 +229,7 @@ const seedPackages = async (req, res, next) => {
                 title: "Gourmet Gala",
                 description: "A seven-course tasting menu curated by Michelin-starred guest chefs.",
                 image: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&q=80",
+                price: 20000,
                 order: 2,
             },
             {
@@ -202,6 +237,7 @@ const seedPackages = async (req, res, next) => {
                 title: "Innovate Summit",
                 description: "Full-day executive networking experience in a state-of-the-art venue.",
                 image: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&q=80",
+                price: 30000,
                 order: 3,
             },
         ];

@@ -4,16 +4,16 @@ const UserSchema = new mongoose.Schema({
   username: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  role: { 
-    type: String, 
-    enum: ['user', 'seller', 'admin'], 
-    default: 'user' 
+  role: {
+    type: String,
+    enum: ['user', 'seller', 'admin'],
+    default: 'user'
   },
   businessDetails: {
     businessName: { type: String },
     businessAddress: { type: String },
     phone: { type: String },
-    category: { type: String },
+    subCategory: { type: String },
     description: { type: String },
     city: { type: String },
     taxFile: { type: String },
@@ -21,7 +21,8 @@ const UserSchema = new mongoose.Schema({
     nicNumber: { type: String },
     whatsappNumber: { type: String },
     profileImage: { type: String },
-    coverImage: { type: String }
+    coverImage: { type: String },
+    rating: { type: String },
   }
 }, { timestamps: true });
 

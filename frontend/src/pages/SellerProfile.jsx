@@ -101,7 +101,7 @@ const testimonials = [
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 function PackageCard({ pkg }) {
-    const img = pkg.image || pkg.img || "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=400&q=80";
+    const img = pkg.image || pkg.img || "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=300&q=80";
     const tag = pkg.category || pkg.tag || "party";
     const desc = pkg.description || pkg.desc || "";
     return (
@@ -171,6 +171,105 @@ function EditorialCard({ post }) {
     );
 }
 
+const MOCK_SELLERS = {
+    "mock-1": {
+        username: "Ceylon Moments Studio",
+        email: "ceylonmoments@example.com",
+        businessDetails: {
+            businessName: "Ceylon Moments Studio",
+            businessAddress: "Colombo 07, Sri Lanka",
+            phone: "+94 77 128 3456",
+            category: "Photography",
+            city: "Colombo",
+            description: "Capturing the essence of your premium moments. Ceylon Moments Studio specializes in luxury wedding cinematography and high-end portrait photography."
+        }
+    },
+    "mock-2": {
+        username: "Grand Heritage Garden",
+        email: "heritagegarden@example.com",
+        businessDetails: {
+            businessName: "Grand Heritage Garden",
+            businessAddress: "Mount Lavinia",
+            phone: "+94 11 244 5678",
+            category: "Hotel / Venue",
+            city: "Mount Lavinia",
+            description: "A breathtaking outdoor garden venue overlooking the ocean, perfect for elegant celebrations, corporate receptions, and unforgettable gatherings."
+        }
+    },
+    "mock-3": {
+        username: "Spices of Lanka Fusion",
+        email: "spicesoflanka@example.com",
+        businessDetails: {
+            businessName: "Spices of Lanka Fusion",
+            businessAddress: "Dehiwala",
+            phone: "+94 11 555 6262",
+            category: "Catering",
+            city: "Dehiwala",
+            description: "Offering premium fusion catering services that combine traditional Sri Lankan spices with contemporary international cuisine."
+        }
+    },
+    "mock-4": {
+        username: "Silver Lens Media",
+        email: "silverlens@example.com",
+        businessDetails: {
+            businessName: "Silver Lens Media",
+            businessAddress: "Battaramulla",
+            phone: "+94 77 345 6789",
+            category: "Photography",
+            city: "Battaramulla",
+            description: "Cinematic photography and videography for events, weddings, and commercials. Bringing a storytelling aspect to every frame we capture."
+        }
+    },
+    "mock-5": {
+        username: "Sonic Beats DJ Services",
+        email: "sonicbeats@example.com",
+        businessDetails: {
+            businessName: "Sonic Beats DJ Services",
+            businessAddress: "Negombo",
+            phone: "+94 31 777 8888",
+            category: "Music",
+            city: "Negombo",
+            description: "State-of-the-art sound systems and premium DJ services to keep your dance floor packed all night. Catering to weddings and corporate parties."
+        }
+    },
+    "mock-6": {
+        username: "Island Bloom Florals",
+        email: "islandbloom@example.com",
+        businessDetails: {
+            businessName: "Island Bloom Florals",
+            businessAddress: "Kandy",
+            phone: "+94 81 222 3333",
+            category: "Decoration",
+            city: "Kandy",
+            description: "Bespoke floral arrangements and luxury venue decorations. Transforming event spaces into absolute botanical wonderlands."
+        }
+    },
+    "mock-7": {
+        username: "Glow by Sarah",
+        email: "glowbysarah@example.com",
+        businessDetails: {
+            businessName: "Glow by Sarah",
+            businessAddress: "Colombo 03",
+            phone: "+94 77 112 3456",
+            category: "Salon",
+            city: "Colombo",
+            description: "Bridal make-up and premium beauty services designed to make you look and feel extraordinary on your most memorable days."
+        }
+    },
+    "mock-8": {
+        username: "Rhythm Beats Entertainment",
+        email: "rhythmbeats@example.com",
+        businessDetails: {
+            businessName: "Rhythm Beats Entertainment",
+            businessAddress: "Wattala",
+            phone: "+94 77 999 1111",
+            category: "Music",
+            city: "Wattala",
+            description: "High-energy live music bands and entertainment planning to light up any corporate summit or wedding celebration."
+        }
+    }
+};
+
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function SellerProfilePage() {
     const { user } = useContext(AuthContext);
@@ -201,6 +300,26 @@ export default function SellerProfilePage() {
 
         setLoading(true);
         setError("");
+
+        if (typeof sellerId === "string" && sellerId.startsWith("mock-")) {
+            const mockSeller = MOCK_SELLERS[sellerId] || {
+                username: "Artisan Gala Events",
+                email: "artisan@example.com",
+                businessDetails: {
+                    businessName: "Artisan Gala Events",
+                    businessAddress: "Battaramulla, Sri Lanka",
+                    phone: "+94 77 999 8888",
+                    category: "Event Planner",
+                    city: "Battaramulla",
+                    description: "Premium event planner specializing in high-end corporate retreats and luxury weddings."
+                }
+            };
+            setSellerInfo(mockSeller);
+            setSellerPackages([]);
+            setSellerPosts([]);
+            setLoading(false);
+            return;
+        }
 
         const fetchInfo = fetch(`http://localhost:5000/api/auth/users/${sellerId}`)
             .then((res) => {
@@ -273,8 +392,8 @@ export default function SellerProfilePage() {
             {/* ── Hero ── */}
             <div className="relative h-64 md:h-80 overflow-hidden">
                 <img
-                    src="https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?w=1400&q=80"
-                    alt="Artisan Gala Events venue"
+                    src={sellerInfo?.businessDetails?.coverImage || "https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?w=1400&q=80"}
+                    alt={`${businessName} cover`}
                     className="w-full h-full object-cover object-center"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent" />
@@ -283,9 +402,19 @@ export default function SellerProfilePage() {
             {/* ── Profile Bar ── */}
             <div className="max-w-4xl mx-auto px-4">
                 <div className="relative flex flex-col items-center pb-5 border-b border-stone-100">
-                    {/* Avatar - dynamic letter circle matching UserProfile */}
+                    {/* Avatar */}
                     <div className="w-28 h-28 rounded-full border-4 border-white shadow-xl overflow-hidden flex-shrink-0 bg-stone-100 flex items-center justify-center text-4xl font-bold text-stone-600 -mt-14 z-10">
-                        {businessName.charAt(0).toUpperCase()}
+                        {sellerInfo?.businessDetails?.profileImage || sellerInfo?.businessDetails?.taxFile ? (
+                            <img
+                                src={sellerInfo.businessDetails.profileImage || sellerInfo.businessDetails.taxFile}
+                                alt={businessName}
+                                className="w-full h-full object-cover"
+                                onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
+                            />
+                        ) : null}
+                        <span style={{ display: (sellerInfo?.businessDetails?.profileImage || sellerInfo?.businessDetails?.taxFile) ? 'none' : 'block' }}>
+                            {businessName.charAt(0).toUpperCase()}
+                        </span>
                     </div>
                     {/* Share button top-right */}
                     <button className="absolute right-0 top-4 flex items-center gap-1.5 text-xs text-stone-600 border border-stone-200 px-3 py-1.5 rounded-full hover:border-amber-400 hover:text-amber-600 transition-colors">

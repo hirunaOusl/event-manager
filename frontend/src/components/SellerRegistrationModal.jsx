@@ -7,7 +7,7 @@ export default function SellerRegistrationModal({ onClose, setView }) {
     businessName: '',
     businessAddress: '',
     phone: '',
-    category: '',
+    subCategory: '',
     description: '',
     city: '',
     taxNumber: '',
@@ -63,9 +63,9 @@ export default function SellerRegistrationModal({ onClose, setView }) {
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
       <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-8 shadow-2xl relative border border-gray-100 flex flex-col gap-6 animate-scale-up">
-        
+
         {/* Close Button */}
-        <button 
+        <button
           onClick={onClose}
           className="absolute top-5 right-5 text-[#434651] hover:text-black transition-colors"
           aria-label="Close modal"
@@ -108,7 +108,7 @@ export default function SellerRegistrationModal({ onClose, setView }) {
                 required
                 className="w-full bg-[#F8F9FB] border border-[#E5E7EB] rounded-lg p-2.5 text-sm text-[#191C1E] outline-none focus:bg-white focus:ring-1 focus:ring-[#002155] transition-colors"
                 onChange={e =>
-                  setBusinessData({ ...businessData, category: e.target.value })
+                  setBusinessData({ ...businessData, subCategory: e.target.value })
                 }
               >
                 <option value="">Select Category</option>

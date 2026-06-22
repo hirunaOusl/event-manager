@@ -123,7 +123,10 @@ function PackageCard({ pkg }) {
                     {tag}
                 </p>
                 <h3 className="text-sm font-semibold text-stone-800 mb-1 leading-tight">{pkg.title}</h3>
-                <p className="text-[11px] text-stone-500 leading-relaxed line-clamp-2">{desc}</p>
+                <p className="text-[11px] text-stone-500 leading-relaxed line-clamp-2 mb-2">{desc}</p>
+                {pkg.price !== undefined && (
+                    <p className="text-xs font-bold text-stone-900 mt-1">Rs.{pkg.price}</p>
+                )}
             </div>
         </div>
     );
@@ -438,7 +441,7 @@ export default function SellerProfilePage() {
                             )}
                             <span className="flex items-center gap-1">
                                 <StarIcon filled />
-                                <strong className="text-stone-700">4.9</strong>
+                                <strong className="text-stone-700">{sellerInfo?.businessDetails?.rating || "0.0"}</strong>
                                 <span className="text-stone-400">(133 reviews)</span>
                             </span>
                         </div>

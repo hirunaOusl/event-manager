@@ -33,6 +33,10 @@ const eventPackageSchema = new mongoose.Schema(
             type: Boolean,
             default: true,
         },
+        price: {
+            type: Number,
+            required: [true, "Price is required"],
+        },
         order: {
             type: Number,         // for manual drag-to-reorder later
             default: 0,

@@ -310,7 +310,7 @@ export default function EventsPage() {
     }, []);
 
     const mappedSellers = dynamicSellers.map((seller) => {
-        const cat = seller.businessDetails?.category || "Photography";
+        const cat = seller.businessDetails?.subCategory || "Photography";
 
         let categoryLabel = "PHOTOGRAPHER";
         if (cat) {

@@ -149,41 +149,182 @@ function Navbar() {
   );
 }
 
-function CoverSection() {
+function CoverSection({ onUpload, uploading }) {
+  const { user } = useContext(AuthContext);
+  const [dragActive, setDragActive] = useState(false);
+
+  const coverUrl = user?.businessDetails?.coverImage || "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=1400&q=85";
+
+  const handleDrag = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true);
+    } else if (e.type === "dragleave") {
+      setDragActive(false);
+    }
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      const file = e.dataTransfer.files[0];
+      if (file.type.startsWith("image/")) {
+        onUpload(file);
+      } else {
+        alert("Only image files are allowed.");
+      }
+    }
+  };
+
+  const handleChange = (e) => {
+    e.preventDefault();
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      if (file.type.startsWith("image/")) {
+        onUpload(file);
+      } else {
+        alert("Only image files are allowed.");
+      }
+    }
+  };
+
   return (
-    <div className="relative w-full h-[400px] md:h-[450px] overflow-hidden">
+    <div 
+      onDragEnter={handleDrag}
+      onDragOver={handleDrag}
+      onDragLeave={handleDrag}
+      onDrop={handleDrop}
+      className={`relative w-full h-[400px] md:h-[450px] overflow-hidden transition-all duration-300 ${
+        dragActive ? "opacity-85 ring-4 ring-[#7C5800] ring-inset" : ""
+      }`}
+    >
       <img
-        src="https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=1400&q=85"
+        src={coverUrl}
         alt="Cover"
         className="w-full h-full object-cover"
       />
       <div className="absolute inset-0 bg-gradient-to-t from-[rgba(27,28,28,0.50)] to-transparent" />
-      <button className="absolute bottom-5 right-6 flex items-center gap-2 px-4 py-2 rounded-lg border border-[rgba(251,249,248,0.30)] bg-[rgba(251,249,248,0.20)] text-[#FBF9F8] font-hanken text-sm hover:bg-[rgba(251,249,248,0.35)] transition-colors">
+      
+      {dragActive && (
+        <div className="absolute inset-0 bg-black/40 flex items-center justify-center pointer-events-none">
+          <p className="text-[#FBF9F8] font-hanken text-lg font-bold">Drop cover image here</p>
+        </div>
+      )}
+
+      {uploading && (
+        <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+          <div className="flex flex-col items-center gap-2">
+            <div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+            <p className="text-white text-xs font-semibold">Uploading...</p>
+          </div>
+        </div>
+      )}
+
+      <label className="absolute bottom-5 right-6 flex items-center gap-2 px-4 py-2 rounded-lg border border-[rgba(251,249,248,0.30)] bg-[rgba(251,249,248,0.20)] text-[#FBF9F8] font-hanken text-sm hover:bg-[rgba(251,249,248,0.35)] transition-colors cursor-pointer">
         <CameraIcon />
         <span>Update Cover</span>
-      </button>
+        <input 
+          type="file" 
+          accept="image/*" 
+          onChange={handleChange} 
+          className="hidden" 
+        />
+      </label>
     </div>
   );
 }
 
-function ProfileHeader() {
+function ProfileHeader({ onUpload, uploading }) {
   const { user } = useContext(AuthContext);
+  const [dragActive, setDragActive] = useState(false);
   const businessName = user?.businessDetails?.businessName || user?.username || "Artisan Gala Events";
   const navigate = useNavigate();
+  const profileUrl = user?.businessDetails?.profileImage || "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=300&q=80";
+
+  const handleDrag = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true);
+    } else if (e.type === "dragleave") {
+      setDragActive(false);
+    }
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      const file = e.dataTransfer.files[0];
+      if (file.type.startsWith("image/")) {
+        onUpload(file);
+      } else {
+        alert("Only image files are allowed.");
+      }
+    }
+  };
+
+  const handleChange = (e) => {
+    e.preventDefault();
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      if (file.type.startsWith("image/")) {
+        onUpload(file);
+      } else {
+        alert("Only image files are allowed.");
+      }
+    }
+  };
+
   return (
     <div className="max-w-[1280px] mx-auto px-8 lg:px-16">
       <div className="flex justify-center -mt-[72px] mb-4">
-        <div className="relative">
-          <div className="w-[130px] h-[130px] md:w-[160px] md:h-[160px] rounded-full border-[5px] border-[#FBF9F8] overflow-hidden shadow-lg">
-            <img
-              src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=300&q=80"
-              alt="Artisan Gala Events"
-              className="w-full h-full object-cover"
-            />
+        <div 
+          onDragEnter={handleDrag}
+          onDragOver={handleDrag}
+          onDragLeave={handleDrag}
+          onDrop={handleDrop}
+          className={`relative group transition-all duration-300 ${dragActive ? "scale-105" : ""}`}
+        >
+          <div className={`w-[130px] h-[130px] md:w-[160px] md:h-[160px] rounded-full border-[5px] border-[#FBF9F8] overflow-hidden shadow-lg bg-stone-100 flex items-center justify-center text-4xl font-bold text-[#7C5800] transition-all ${
+            dragActive ? "ring-4 ring-[#7C5800]" : ""
+          }`}>
+            {user?.businessDetails?.profileImage ? (
+              <img
+                src={profileUrl}
+                alt={businessName}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <span>{businessName.charAt(0).toUpperCase()}</span>
+            )}
+            
+            {dragActive && (
+              <div className="absolute inset-0 bg-black/40 flex items-center justify-center text-center p-2 rounded-full">
+                <span className="text-[10px] md:text-xs text-[#FBF9F8] font-bold font-hanken">Drop profile</span>
+              </div>
+            )}
+
+            {uploading && (
+              <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-full">
+                <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+              </div>
+            )}
           </div>
-          <button className="absolute bottom-3 right-2 w-8 h-8 rounded-full bg-[#7C5800] flex items-center justify-center shadow-md hover:bg-[#6B4C00] transition-colors">
+
+          <label className="absolute bottom-3 right-2 w-8 h-8 rounded-full bg-[#7C5800] flex items-center justify-center shadow-md hover:bg-[#6B4C00] transition-colors cursor-pointer">
             <EditIcon />
-          </button>
+            <input 
+              type="file" 
+              accept="image/*" 
+              onChange={handleChange} 
+              className="hidden" 
+            />
+          </label>
         </div>
       </div>
 
@@ -283,6 +424,64 @@ function Footer() {
 export default function SellerDashboard() {
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const { token, updateUser } = useContext(AuthContext);
+  const [uploadingCover, setUploadingCover] = useState(false);
+  const [uploadingProfile, setUploadingProfile] = useState(false);
+  const [uploadError, setUploadError] = useState("");
+
+  const handleUploadCover = async (file) => {
+    setUploadingCover(true);
+    setUploadError("");
+    try {
+      const form = new FormData();
+      form.append("coverImage", file);
+
+      const res = await fetch("http://localhost:5000/api/auth/profile", {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: form,
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to upload cover image.");
+
+      updateUser(data.user);
+    } catch (err) {
+      console.error(err);
+      setUploadError(err.message || "Error uploading cover image.");
+    } finally {
+      setUploadingCover(false);
+    }
+  };
+
+  const handleUploadProfile = async (file) => {
+    setUploadingProfile(true);
+    setUploadError("");
+    try {
+      const form = new FormData();
+      form.append("profileImage", file);
+
+      const res = await fetch("http://localhost:5000/api/auth/profile", {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: form,
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to upload profile image.");
+
+      updateUser(data.user);
+    } catch (err) {
+      console.error(err);
+      setUploadError(err.message || "Error uploading profile image.");
+    } finally {
+      setUploadingProfile(false);
+    }
+  };
 
   return (
     <>
@@ -292,8 +491,13 @@ export default function SellerDashboard() {
           <SellerSidebar isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
           
           <div className={`transition-all duration-300 ${isSidebarOpen ? 'pl-64' : 'pl-16'}`}>
-            <CoverSection />
-            <ProfileHeader />
+            {uploadError && (
+              <div className="bg-red-50 text-red-600 p-3 text-sm text-center border-b border-red-100">
+                {uploadError}
+              </div>
+            )}
+            <CoverSection onUpload={handleUploadCover} uploading={uploadingCover} />
+            <ProfileHeader onUpload={handleUploadProfile} uploading={uploadingProfile} />
             <CuratedPackages />
             <EditorialUpdates />
             <Footer />

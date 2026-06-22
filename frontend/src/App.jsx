@@ -10,6 +10,7 @@ import LoginPage from "./pages/Login";
 import BusinessSetting from "./pages/BusinessSetting";
 import BusinessAnalytics from "./pages/BusinessAnalytics";
 import SellerProfile from "./pages/SellerProfile";
+import Events from "./pages/Events";
 
 function ProtectedLayout({ children, allowedRoles }) {
   const { user } = useContext(AuthContext);
@@ -65,6 +66,10 @@ export default function App() {
 
         <Route path="/seller-profile" element={
           <ProtectedLayout allowedRoles={['user', 'seller']}><SellerProfile /></ProtectedLayout>
+        } />
+
+        <Route path="/events" element={
+          <ProtectedLayout allowedRoles={['user', 'seller']}><Events /></ProtectedLayout>
         } />
 
         {/* Fallback Route */}

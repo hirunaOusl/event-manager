@@ -5,8 +5,18 @@ import { AuthContext } from '../context/AuthContext';
 export default function UserProfile() {
   const { user, token, updateRoleToSeller, logout } = useContext(AuthContext);
   const [activeSubView, setActiveSubView] = useState('profile');
-  const [showForm, setShowForm] = useState(false);
-  const [businessData, setBusinessData] = useState({ businessName: '', businessAddress: '', phone: '' });
+  const [businessData, setBusinessData] = useState({
+    businessName: '',
+    businessAddress: '',
+    phone: '',
+    category: '',
+    description: '',
+    city: '',
+    taxNumber: '',
+    nicNumber: '',
+    whatsappNumber: ''
+  });
+  const [taxFile, setTaxFile] = useState(null);
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
@@ -30,13 +40,25 @@ export default function UserProfile() {
     smsAlerts: false
   });
 
+  const [showForm, setShowForm] = useState(false);
+
   const handleUpgrade = async (e) => {
     e.preventDefault();
+    if (!taxFile) {
+      setError('Please upload your business tax file image.');
+      return;
+    }
     try {
+      const form = new FormData();
+      Object.entries(businessData).forEach(([key, val]) => {
+        form.append(key, val);
+      });
+      form.append('taxFile', taxFile);
+
       const res = await fetch('http://localhost:5000/api/auth/register-seller', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body: JSON.stringify(businessData)
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: form
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message);
@@ -484,13 +506,137 @@ export default function UserProfile() {
                       </div>
 
                       {showForm && (
-                        <form onSubmit={handleUpgrade} className="mt-8 pt-8 border-t space-y-4 max-w-md">
-                          <h3 className="text-lg font-bold text-gray-900">Seller Registration Form</h3>
-                          {error && <div className="text-red-600 text-sm">{error}</div>}
-                          <input type="text" placeholder="Business Name" required className="w-full p-3 border rounded-xl outline-none" onChange={e => setBusinessData({ ...businessData, businessName: e.target.value })} />
-                          <input type="text" placeholder="Business Address" required className="w-full p-3 border rounded-xl outline-none" onChange={e => setBusinessData({ ...businessData, businessAddress: e.target.value })} />
-                          <input type="text" placeholder="Contact Phone" required className="w-full p-3 border rounded-xl outline-none" onChange={e => setBusinessData({ ...businessData, phone: e.target.value })} />
-                          <button type="submit" className="w-full bg-[#1B1C1C] text-white p-3 rounded-xl font-medium">Register Business & Upgrade</button>
+                        <form onSubmit={handleUpgrade} className="mt-8 pt-8 border-t space-y-5 max-w-lg">
+                          <h3 className="text-xl font-bold text-gray-900 mb-4">Seller Registration Form</h3>
+                          {error && <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm mb-4">{error}</div>}
+                          
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <label className="text-xs font-bold text-[#434651] mb-1.5 block">Business Name</label>
+                              <input 
+                                type="text" 
+                                placeholder="e.g. Sterling Events" 
+                                required 
+                                className="w-full bg-[#F8F9FB] border border-[#E5E7EB] rounded-lg p-2.5 text-sm text-[#191C1E] outline-none focus:bg-white focus:ring-1 focus:ring-[#002155] transition-colors" 
+                                onChange={e => setBusinessData({ ...businessData, businessName: e.target.value })} 
+                              />
+                            </div>
+                            <div>
+                              <label className="text-xs font-bold text-[#434651] mb-1.5 block">Business Category</label>
+                              <select 
+                                required 
+                                className="w-full bg-[#F8F9FB] border border-[#E5E7EB] rounded-lg p-2.5 text-sm text-[#191C1E] outline-none focus:bg-white focus:ring-1 focus:ring-[#002155] transition-colors" 
+                                onChange={e => setBusinessData({ ...businessData, category: e.target.value })}
+                              >
+                                <option value="">Select Category</option>
+                                <option value="Decoration">Decoration</option>
+                                <option value="Photography">Photography</option>
+                                <option value="Music">Music</option>
+                                <option value="Hotel / Venue">Hotel / Venue</option>
+                                <option value="Catering">Catering</option>
+                                <option value="Jewelry">Jewelry</option>
+                                <option value="Salon">Salon</option>
+                                <option value="Dress Designer">Dress Designer</option>
+                                <option value="Cake Designer">Cake Designer</option>
+                                <option value="Event Planner">Event Planner</option>
+                              </select>
+                            </div>
+                          </div>
+
+                          <div>
+                            <label className="text-xs font-bold text-[#434651] mb-1.5 block">Business Description</label>
+                            <textarea 
+                              rows="3"
+                              placeholder="Tell customers about your business..." 
+                              required 
+                              className="w-full bg-[#F8F9FB] border border-[#E5E7EB] rounded-lg p-2.5 text-sm text-[#191C1E] outline-none focus:bg-white focus:ring-1 focus:ring-[#002155] transition-colors resize-none" 
+                              onChange={e => setBusinessData({ ...businessData, description: e.target.value })} 
+                            />
+                          </div>
+
+                          <div>
+                            <label className="text-xs font-bold text-[#434651] mb-1.5 block">Business Address</label>
+                            <input 
+                              type="text" 
+                              placeholder="123 Luxury Lane" 
+                              required 
+                              className="w-full bg-[#F8F9FB] border border-[#E5E7EB] rounded-lg p-2.5 text-sm text-[#191C1E] outline-none focus:bg-white focus:ring-1 focus:ring-[#002155] transition-colors" 
+                              onChange={e => setBusinessData({ ...businessData, businessAddress: e.target.value })} 
+                            />
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <label className="text-xs font-bold text-[#434651] mb-1.5 block">City</label>
+                              <input 
+                                type="text" 
+                                placeholder="London" 
+                                required 
+                                className="w-full bg-[#F8F9FB] border border-[#E5E7EB] rounded-lg p-2.5 text-sm text-[#191C1E] outline-none focus:bg-white focus:ring-1 focus:ring-[#002155] transition-colors" 
+                                onChange={e => setBusinessData({ ...businessData, city: e.target.value })} 
+                              />
+                            </div>
+                            <div>
+                              <label className="text-xs font-bold text-[#434651] mb-1.5 block">Contact Phone</label>
+                              <input 
+                                type="text" 
+                                placeholder="+44 7700 900077" 
+                                required 
+                                className="w-full bg-[#F8F9FB] border border-[#E5E7EB] rounded-lg p-2.5 text-sm text-[#191C1E] outline-none focus:bg-white focus:ring-1 focus:ring-[#002155] transition-colors" 
+                                onChange={e => setBusinessData({ ...businessData, phone: e.target.value })} 
+                              />
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <label className="text-xs font-bold text-[#434651] mb-1.5 block">Tax Number</label>
+                              <input 
+                                type="text" 
+                                placeholder="TX-998877" 
+                                required 
+                                className="w-full bg-[#F8F9FB] border border-[#E5E7EB] rounded-lg p-2.5 text-sm text-[#191C1E] outline-none focus:bg-white focus:ring-1 focus:ring-[#002155] transition-colors" 
+                                onChange={e => setBusinessData({ ...businessData, taxNumber: e.target.value })} 
+                              />
+                            </div>
+                            <div>
+                              <label className="text-xs font-bold text-[#434651] mb-1.5 block">NIC Number</label>
+                              <input 
+                                type="text" 
+                                placeholder="NIC-19928877" 
+                                required 
+                                className="w-full bg-[#F8F9FB] border border-[#E5E7EB] rounded-lg p-2.5 text-sm text-[#191C1E] outline-none focus:bg-white focus:ring-1 focus:ring-[#002155] transition-colors" 
+                                onChange={e => setBusinessData({ ...businessData, nicNumber: e.target.value })} 
+                              />
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <label className="text-xs font-bold text-[#434651] mb-1.5 block">WhatsApp Number</label>
+                              <input 
+                                type="text" 
+                                placeholder="+44 7700 900088" 
+                                required 
+                                className="w-full bg-[#F8F9FB] border border-[#E5E7EB] rounded-lg p-2.5 text-sm text-[#191C1E] outline-none focus:bg-white focus:ring-1 focus:ring-[#002155] transition-colors" 
+                                onChange={e => setBusinessData({ ...businessData, whatsappNumber: e.target.value })} 
+                              />
+                            </div>
+                            <div>
+                              <label className="text-xs font-bold text-[#434651] mb-1.5 block">Business Tax File Image</label>
+                              <input 
+                                type="file" 
+                                accept="image/*"
+                                required 
+                                className="w-full bg-[#F8F9FB] border border-[#E5E7EB] rounded-lg p-1.5 text-sm text-[#191C1E] outline-none focus:bg-white focus:ring-1 focus:ring-[#002155] transition-colors" 
+                                onChange={e => setTaxFile(e.target.files[0])} 
+                              />
+                            </div>
+                          </div>
+
+                          <button type="submit" className="w-full mt-4 bg-[#002155] hover:bg-[#001a44] text-white p-3 rounded-xl font-medium transition-colors shadow-sm">
+                            Register Business & Upgrade
+                          </button>
                         </form>
                       )}
                     </div>

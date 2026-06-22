@@ -12,7 +12,16 @@ const UserSchema = new mongoose.Schema({
   businessDetails: {
     businessName: { type: String },
     businessAddress: { type: String },
-    phone: { type: String }
+    phone: { type: String },
+    category: { type: String },
+    description: { type: String },
+    city: { type: String },
+    taxFile: { type: String },
+    taxNumber: { type: String },
+    nicNumber: { type: String },
+    whatsappNumber: { type: String },
+    profileImage: { type: String },
+    coverImage: { type: String }
   }
 }, { timestamps: true });
 
